@@ -635,10 +635,15 @@ else if get_stage("%(bcb_dev)s") == "3/3" then
   script.Print("********************************");                              
   script.Print("                                    ");
   builddate = GetBuildProp("ro.build.date", OPTIONS.info_dict)
-  device = GetBuildProp("ro.product.device", OPTIONS.info_dict)
   script.Print("    Build date: %s"%(builddate));
-  script.Print("    Device: %s "%(device)); 
-  script.Print("******************************************");
+  device = GetBuildProp("ro.product.device", OPTIONS.info_dict)
+  if GetBuildProp("ro.product.model", OPTIONS.info_dict) is not None:
+      model = GetBuildProp("ro.product.model", OPTIONS.info_dict)
+      script.Print("*   Device: %s (%s)"%(model, device));
+      script.Print("******************************************");
+  else:
+      script.Print("*   Device: %s "%(device));
+      script.Print("******************************************");
 
   if OPTIONS.backuptool:
     script.Mount("/system")
@@ -804,7 +809,8 @@ def GetBuildProp(prop, info_dict):
   try:
     return info_dict.get("build.prop", {})[prop]
   except KeyError:
-    raise common.ExternalError("couldn't find %s in build.prop" % (prop,))
+    print ("WARNING: could not find %s in build.prop" % (prop,))
+    return None
 
 
 def AddToKnownPaths(filename, known_paths):
